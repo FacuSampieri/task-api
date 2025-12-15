@@ -1,71 +1,54 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
+import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
-import { User } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private users: UsersService,
+    private jwt: JwtService,
   ) {}
 
-  // Registro de usuario
   async register(data: RegisterDto) {
-    const { email, password, name, lastName, phone } = data;
-    
-    const exists = await this.prisma.user.findUnique({
-      where: { email },
-    });
-    if (exists) {
-      throw new UnauthorizedException('El email ya está registrado.');
-    }
-
-    const hashed = await bcrypt.hash(password, 10);
-
-    const user = await this.prisma.user.create({
-      data: { email, password: hashed, name, lastName, phone },
+    const user = await this.users.createUser({
+      email: data.email,
+      password: data.password,
+      name: data.name,
+      lastName: data.lastName,
+      phone: data.phone,
     });
 
     return this.generateTokens(user);
   }
 
-  // Validación de usuario
-  async validateUser(data: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: data.email },
-    });
-    if (!user) {
-      return null;
-    }
+  async validateUser({ email, password }: LoginDto) {
+    const user = await this.users.findByEmail(email);
+    if (!user) throw new UnauthorizedException('Credenciales incorrectas');
 
-    const isPasswordValid = await bcrypt.compare(data.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Contraseña incorrecta.');
-    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) throw new UnauthorizedException('Credenciales incorrectas');
 
     return user;
   }
 
-  // Login de usuario
-  async login(usuario: User) {
-    return this.generateTokens(usuario);
+  async login(user) {
+    return this.generateTokens(user);
   }
 
-  // Generación de tokens JWT
-  private async generateTokens(user: User) {
-    const payload = { sub: user.id, email: user.email };
+  private async generateTokens(user) {
+    const payload = { sub: user.id, email: user.email, role: user.role };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwt.sign(payload),
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
         lastName: user.lastName,
+        role: user.role,
       },
     };
   }

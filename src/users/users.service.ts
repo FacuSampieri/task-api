@@ -1,6 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import * as bcrypt from 'bcryptjs';
+import { RegisterDto } from '../auth/dto/register.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +15,8 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
+        lastName: true,
+        role: true,
         createdAt: true,
       },
     });
@@ -24,6 +29,9 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
+        lastName: true,
+        role: true,
+        phone: true,
         createdAt: true,
       },
     });
@@ -31,6 +39,28 @@ export class UsersService {
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     return user;
+  }
+
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async createUser(data: RegisterDto) {
+    const exists = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (exists) throw new ConflictException('El email ya está registrado.');
+
+    const hashed = await bcrypt.hash(data.password, 10);
+
+    return this.prisma.user.create({
+      data: {
+        ...data,
+        password: hashed,
+        role: Role.USER,
+      },
+    });
   }
 
   async update(id: string, data: UpdateUserDto) {
@@ -43,6 +73,8 @@ export class UsersService {
         id: true,
         email: true,
         name: true,
+        lastName: true,
+        role: true,
         updatedAt: true,
       },
     });
