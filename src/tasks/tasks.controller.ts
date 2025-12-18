@@ -16,6 +16,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { Priority, Status } from '@prisma/client';
 
 @Controller('tasks')
 @ApiTags('tasks')
@@ -40,17 +41,19 @@ export class TasksController {
   @ApiResponse({ status: 200, description: 'Listado de tareas' })
   @ApiForbiddenResponse({ description: 'No tienes permiso (se requiere rol ADMIN)' })
   @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@Param("status") status: Status, @Param("priority") priority: Priority, @Param('userId') userId: string) {
+    return this.tasksService.findAll(status, priority, userId);
   }
 
   @Get('all')
   @ApiOperation({ summary: 'Listar tareas del usuario autenticado' })
+  @ApiParam({ name: 'priority', description: 'Prioridad de la tarea', required: false, enum: Priority })
+  @ApiParam({ name: 'status', description: 'Estado de la tarea', required: false, enum: Status })
   @ApiResponse({ status: 200, description: 'Listado de tareas del usuario', schema: { example: [] } })
   @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
-  findAllByUser(@Request() req) {
+  findAllByUser(@Param('priority') priority: Priority, @Param('status') status: Status, @Request() req) {
     const userId = req.user.id;
-    return this.tasksService.findAllByUser(userId);
+    return this.tasksService.findAllByUser(userId, priority, status);
   }
 
   @Get(':id')

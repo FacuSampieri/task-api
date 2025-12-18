@@ -19,8 +19,36 @@ export class TasksService {
     return task;
   }
 
-  async findAll() {
+  async findAll(status?: string, priority?: string, userId?: string) {
     const tasks = await this.prisma.task.findMany();
+
+    if (userId) {
+      return tasks.filter(task => task.userId === userId);
+    }
+
+    if (status) {
+      return tasks.filter(task => task.status === status);
+    }
+
+    if (priority) {
+      return tasks.filter(task => task.priority === priority);
+    }
+
+    if (userId && status) {
+      return tasks.filter(task => task.userId === userId && task.status === status);
+    }
+
+    if (userId && priority) {
+      return tasks.filter(task => task.userId === userId && task.priority === priority);
+    }
+
+    if (status && priority) {
+      return tasks.filter(task => task.status === status && task.priority === priority);
+    }
+
+    if (userId && status && priority) {
+      return tasks.filter(task => task.userId === userId && task.status === status && task.priority === priority);
+    }
 
     if (tasks === null) {
       throw new Error('No tasks found');
@@ -29,7 +57,7 @@ export class TasksService {
     return tasks;
   }
 
-  async findAllByUser(userId: string) {
+  async findAllByUser(userId: string, priority?: string, status?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { tasks: true },
@@ -43,7 +71,17 @@ export class TasksService {
       throw new Error('No tasks found for this user');
     }
 
-    return user.tasks;
+    let filteredTasks = user.tasks;
+
+    if (priority) {
+      filteredTasks = filteredTasks.filter(task => task.priority === priority);
+    }
+
+    if (status) {
+      filteredTasks = filteredTasks.filter(task => task.status === status);
+    }
+
+    return filteredTasks;
   }
 
   async findOne(id: string, userId: string) {
