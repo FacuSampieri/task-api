@@ -9,51 +9,21 @@ export class TasksService {
 
   async create(createTaskDto: CreateTaskDto, userId: string) {
     const task = await this.prisma.task.create({
-      data: {
-        ...createTaskDto,
-        user: {
-          connect: { id: userId },
-        },
-      }
+      data: { ...createTaskDto, userId },
     });
     return task;
   }
 
   async findAll(status?: string, priority?: string, userId?: string) {
-    const tasks = await this.prisma.task.findMany();
+    const where: any = {};
+    if (userId) where.userId = userId;
+    if (status) where.status = status;
+    if (priority) where.priority = priority;
 
-    if (userId) {
-      return tasks.filter(task => task.userId === userId);
-    }
-
-    if (status) {
-      return tasks.filter(task => task.status === status);
-    }
-
-    if (priority) {
-      return tasks.filter(task => task.priority === priority);
-    }
-
-    if (userId && status) {
-      return tasks.filter(task => task.userId === userId && task.status === status);
-    }
-
-    if (userId && priority) {
-      return tasks.filter(task => task.userId === userId && task.priority === priority);
-    }
-
-    if (status && priority) {
-      return tasks.filter(task => task.status === status && task.priority === priority);
-    }
-
-    if (userId && status && priority) {
-      return tasks.filter(task => task.userId === userId && task.status === status && task.priority === priority);
-    }
-
-    if (tasks === null) {
+    const tasks = await this.prisma.task.findMany({ where });
+    if (!tasks || tasks.length === 0) {
       throw new Error('No tasks found');
     }
-
     return tasks;
   }
 

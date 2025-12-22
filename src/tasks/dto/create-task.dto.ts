@@ -23,4 +23,9 @@ export class CreateTaskDto {
     @Type(() => Date)
     @ApiProperty({ example: '2025-12-31', description: 'Fecha de vencimiento de la tarea', required: false })
     dueDate?: Date;
+
+    @IsString()
+    @IsOptional()
+    @ApiProperty({ example: 'groupId123', description: 'ID del grupo al que pertenece la tarea', required: false })
+    groupId?: string;
 }

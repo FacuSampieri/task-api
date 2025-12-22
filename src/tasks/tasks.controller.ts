@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards, Query } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -12,6 +12,7 @@ import {
   ApiForbiddenResponse,
   ApiParam,
   ApiNotFoundResponse,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -41,17 +42,31 @@ export class TasksController {
   @ApiResponse({ status: 200, description: 'Listado de tareas' })
   @ApiForbiddenResponse({ description: 'No tienes permiso (se requiere rol ADMIN)' })
   @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
-  findAll(@Param("status") status: Status, @Param("priority") priority: Priority, @Param('userId') userId: string) {
+  @ApiResponse({ status: 200, description: 'Listado de tareas filtradas', schema: { example: [] } })
+  @ApiQuery({ name: 'status', required: false, enum: Status, description: 'Estado de la tarea' })
+  @ApiQuery({ name: 'priority', required: false, enum: Priority, description: 'Prioridad de la tarea' })
+  @ApiQuery({ name: 'userId', required: false, type: String, description: 'ID del usuario' })
+  // Filtros por query params: /tasks?status=pending&priority=HIGH&userId=xxx
+  findAll(
+    @Query('status') status?: Status,
+    @Query('priority') priority?: Priority,
+    @Query('userId') userId?: string
+  ) {
     return this.tasksService.findAll(status, priority, userId);
   }
 
   @Get('all')
   @ApiOperation({ summary: 'Listar tareas del usuario autenticado' })
-  @ApiParam({ name: 'priority', description: 'Prioridad de la tarea', required: false, enum: Priority })
-  @ApiParam({ name: 'status', description: 'Estado de la tarea', required: false, enum: Status })
   @ApiResponse({ status: 200, description: 'Listado de tareas del usuario', schema: { example: [] } })
   @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
-  findAllByUser(@Param('priority') priority: Priority, @Param('status') status: Status, @Request() req) {
+  @ApiQuery({ name: 'priority', required: false, enum: Priority, description: 'Prioridad de la tarea' })
+  @ApiQuery({ name: 'status', required: false, enum: Status, description: 'Estado de la tarea' })
+  // Filtros por query params: /tasks/all?priority=HIGH&status=pending
+  findAllByUser(
+    @Request() req,
+    @Query('priority') priority?: Priority,
+    @Query('status') status?: Status,
+  ) {
     const userId = req.user.id;
     return this.tasksService.findAllByUser(userId, priority, status);
   }

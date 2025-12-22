@@ -5,10 +5,11 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { TasksModule } from './tasks/tasks.module';
 import { FilesModule } from './files/files.module';
+import { GroupsModule } from './groups/groups.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,
-    }),PrismaModule,AuthModule,UsersModule, TasksModule, FilesModule],
+    }),PrismaModule,AuthModule,UsersModule, TasksModule, FilesModule, GroupsModule],
 })
 export class AppModule {}
