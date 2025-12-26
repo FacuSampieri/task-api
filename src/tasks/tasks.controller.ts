@@ -61,14 +61,15 @@ export class TasksController {
   @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
   @ApiQuery({ name: 'priority', required: false, enum: Priority, description: 'Prioridad de la tarea' })
   @ApiQuery({ name: 'status', required: false, enum: Status, description: 'Estado de la tarea' })
-  // Filtros por query params: /tasks/all?priority=HIGH&status=pending
+  @ApiQuery({ name: 'groupId', required: false, type: String, description: 'ID del grupo' })
   findAllByUser(
     @Request() req,
     @Query('priority') priority?: Priority,
     @Query('status') status?: Status,
+    @Query('groupId') groupId?: string,
   ) {
     const userId = req.user.id;
-    return this.tasksService.findAllByUser(userId, priority, status);
+    return this.tasksService.findAllByUser(userId, priority, status, groupId);
   }
 
   @Get(':id')

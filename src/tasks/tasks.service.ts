@@ -27,7 +27,7 @@ export class TasksService {
     return tasks;
   }
 
-  async findAllByUser(userId: string, priority?: string, status?: string) {
+  async findAllByUser(userId: string, priority?: string, status?: string, groupId?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { tasks: true },
@@ -42,6 +42,11 @@ export class TasksService {
     }
 
     let filteredTasks = user.tasks;
+
+    // Filtro por grupoId si se proporciona
+    if (groupId) {
+      filteredTasks = filteredTasks.filter(task => task.groupId === groupId);
+    }
 
     if (priority) {
       filteredTasks = filteredTasks.filter(task => task.priority === priority);
