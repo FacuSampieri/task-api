@@ -94,6 +94,19 @@ export class TasksService {
     });
   }
 
+  async completeTask(id: string, userId: string) {
+    const { task, user } = await this.findUserAndTask(id, userId);
+
+    if (user.role !== 'ADMIN' && task.userId !== userId) {
+      throw new Error('You do not have permission to complete this task');
+    }
+
+    return await this.prisma.task.update({
+      where: { id },
+      data: { status: 'completed' },
+    });
+  }
+
   // Funciones complementarias
     async findUserAndTask(taskId: string, userId: string) {
       const task = await this.prisma.task.findUnique({

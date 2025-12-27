@@ -95,6 +95,17 @@ export class TasksController {
     return this.tasksService.update(id, updateTaskDto, userId);
   }
 
+  @Patch(':id/complete')
+  @ApiOperation({ summary: 'Marcar una tarea como completada (propia o ADMIN)' })
+  @ApiParam({ name: 'id', description: 'ID de la tarea a completar', type: 'string' })
+  @ApiResponse({ status: 200, description: 'Tarea completada correctamente' })
+  @ApiForbiddenResponse({ description: 'No tienes permiso para completar esta tarea' })
+  @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
+  completeTask(@Param('id') id: string, @Request() req) {
+    const userId = req.user.id;
+    return this.tasksService.completeTask(id, userId);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una tarea (propia o ADMIN)' })
   @ApiParam({ name: 'id', description: 'ID de la tarea a eliminar', type: 'string' })
