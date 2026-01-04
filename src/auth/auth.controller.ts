@@ -10,7 +10,9 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -75,4 +77,42 @@ export class AuthController {
   login(@Request() req) {
     return this.auth.login(req.user);
   }
+
+  @UseGuards(RefreshTokenGuard)
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refrescar token de acceso' })
+  @ApiBody({
+    type: RefreshTokenDto,
+    description: 'Token de refresco para obtener un nuevo token de acceso',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nuevo token de acceso generado exitosamente',
+    schema: {
+      example: {
+        access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        user: {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          email: 'user@example.com',
+          name: 'Juan',
+          lastName: 'Pérez',
+          role: 'USER',
+        },
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Token inválido o expirado',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Token inválido o expirado',
+      },
+    },
+  })
+  refresh(@Request() req) {
+    return this.auth.refreshToken(req.user);
+  }
 }
+

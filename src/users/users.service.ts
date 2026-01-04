@@ -91,4 +91,15 @@ export class UsersService {
       },
     });
   }
+
+  async updateRefreshToken(id: string, refreshToken: string) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { refreshToken },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+  }
 }
