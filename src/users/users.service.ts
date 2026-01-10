@@ -45,6 +45,25 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { email } });
   }
 
+  async findByPhone(phone: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { phone },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    return user;
+  }
+
   async createUser(data: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
       where: { email: data.email },
