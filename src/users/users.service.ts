@@ -64,6 +64,25 @@ export class UsersService {
     return user;
   }
 
+  async findByTelegramId(telegramId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: { telegramId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        lastName: true,
+        phone: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    return user;
+  }
+
   async createUser(data: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
       where: { email: data.email },
@@ -128,6 +147,22 @@ export class UsersService {
       select: {
         id: true,
         email: true,
+      },
+    });
+  }
+
+  async linkTelegramId(email: string, telegramId: string) {
+    const user = await this.findByEmail(email);
+    
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    return this.prisma.user.update({
+      where: { email },
+      data: { telegramId },
+      select: {
+        id: true,
+        email: true,
+        telegramId: true,
       },
     });
   }

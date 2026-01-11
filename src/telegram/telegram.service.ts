@@ -18,7 +18,11 @@ export class TelegramService {
 		return this.tasksService.completeTask(taskId, userId);
 	}
 
-	async getUserByPhone(phone: string) {
-		return this.usersService.findByPhone(phone);
-	}
+	async getUserByTelegramId(telegramId: string) {
+        return this.usersService.findByTelegramId(telegramId);
+    }
+
+    async linkTelegramIdToUser(email: string, telegramId: string) {
+        return this.usersService.linkTelegramId(email, telegramId);
+    }
 }
