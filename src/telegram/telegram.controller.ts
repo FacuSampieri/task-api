@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, UseGuards, Post } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Query, UseGuards, Post, Delete } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
 import { N8nAuthGuard } from './guards/N8NAuthGuard.guard';
 import { Priority } from '@prisma/client';
@@ -43,5 +43,29 @@ export class TelegramController {
     @Query('telegramId') telegramId: string,
   ) {
     return this.telegramService.linkTelegramIdToUser(email, telegramId);
+  }
+
+  @UseGuards(N8nAuthGuard)
+  @Post('start')
+  startLinkingProcess(
+    @Query('telegramId') telegramId: string,
+  ) {
+    return this.telegramService.startLinkingProcess(telegramId);
+  }
+
+  @UseGuards(N8nAuthGuard)
+  @Get('status')
+  getStatus(
+    @Query('telegramId') telegramId: string,
+  ) {
+    return this.telegramService.getLinkingStatus(telegramId);
+  }
+
+  @UseGuards(N8nAuthGuard)
+  @Delete('status')
+  deleteStatus(
+    @Query('telegramId') telegramId: string,
+  ) {
+    return this.telegramService.deleteLinkingStatus(telegramId);
   }
 }
