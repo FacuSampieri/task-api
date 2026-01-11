@@ -153,17 +153,12 @@ export class UsersService {
 
   async linkTelegramId(email: string, telegramId: string) {
     const user = await this.findByEmail(email);
-    
+
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
     return this.prisma.user.update({
       where: { email },
-      data: { telegramId },
-      select: {
-        id: true,
-        email: true,
-        telegramId: true,
-      },
+      data: { telegramId }
     });
   }
 }
