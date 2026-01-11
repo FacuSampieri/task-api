@@ -158,7 +158,16 @@ export class UsersService {
 
     return this.prisma.user.update({
       where: { email },
-      data: { telegramId }
+      data: { telegramId },
+      select: {
+        id: true,
+        email: true,
+        telegramId: true,
+        name: true,
+        lastName: true,
+        role: true,
+        phone: true,
+      },
     });
   }
 }
