@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TasksService } from '../tasks/tasks.service';
 import { Priority } from '@prisma/client';
 import { UsersService } from '../users/users.service';
@@ -43,7 +43,7 @@ export class TelegramService {
         });
 
         if (!link) {
-            return Error('No linking process found for this Telegram ID');
+            throw new NotFoundException('No linking process found for this Telegram ID');
         }
 
         return { status: link.step };
