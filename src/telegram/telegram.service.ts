@@ -43,7 +43,7 @@ export class TelegramService {
         });
 
         if (!link) {
-            return { status: 'not_started' };
+            return Error('No linking process found for this Telegram ID');
         }
 
         return { status: link.step };
