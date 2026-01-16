@@ -10,6 +10,7 @@ API REST desarrollada con **NestJS** y **PostgreSQL** para gestionar usuarios, t
 - [Ejecución](#ejecución)
 - [API Endpoints](#api-endpoints)
 - [Autenticación](#autenticación)
+- [Bot de Telegram](#bot-de-telegram)
 - [Base de datos](#base-de-datos)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Testing](#testing)
@@ -24,6 +25,7 @@ API REST desarrollada con **NestJS** y **PostgreSQL** para gestionar usuarios, t
 ✅ **Sistema de tareas** con estados y prioridades  
 ✅ **Grupos de tareas** para organización  
 ✅ **Carga de archivos** asociados a tareas  
+✅ **Bot de Telegram integrado** para ver tareas pendientes y notificaciones de completación  
 ✅ **Validación de datos** con class-validator  
 ✅ **Documentación automática** con Swagger  
 ✅ **Seguridad** con Helmet y bcrypt  
@@ -416,6 +418,42 @@ async function apiCall(endpoint) {
   return response.json();
 }
 ```
+
+---
+
+## 🤖 Bot de Telegram
+
+### Descripción
+
+La API incluye integración con un **bot de Telegram** que permite a los usuarios:
+
+- 📋 **Ver tareas pendientes**: Consulta todas tus tareas pendientes directamente desde Telegram
+- ✅ **Recibir notificaciones**: Obtén notificaciones automáticas cuando completes una tarea
+- 🔔 **Actualizaciones en tiempo real**: Mantente informado sobre cambios en tus tareas
+
+### Configuración
+
+Para usar el bot de Telegram, necesitas:
+
+1. **Crear un bot en Telegram**:
+   - Abre [@BotFather](https://t.me/botfather) en Telegram
+   - Crea un nuevo bot y obtén el token
+   - Guarda el token en tu variable de entorno `TELEGRAM_BOT_TOKEN`
+
+2. **Vincular tu usuario**:
+   - Obtén tu `TELEGRAM_USER_ID` (puedes usar [@userinfobot](https://t.me/userinfobot))
+   - Vincula tu cuenta de usuario con tu ID de Telegram a través del endpoint correspondiente
+
+3. **Variables de entorno**:
+```env
+TELEGRAM_BOT_TOKEN="tu_token_de_bot_aqui"
+```
+
+### Comandos disponibles
+
+- `/start` - Inicia la conversación con el bot
+- `/tareas` - Muestra todas tus tareas pendientes
+- `/completar <id>` - Marca una tarea como completada
 
 ---
 
