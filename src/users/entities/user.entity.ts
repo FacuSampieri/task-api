@@ -8,3 +8,7 @@ export class User {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface IntegrationStatus {
+    telegramStatus: string;
+}

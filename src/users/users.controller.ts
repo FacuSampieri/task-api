@@ -56,6 +56,22 @@ export class UsersController {
     return this.usersService.findById(req.user.id);
   }
 
+  @Get('integration/status')
+  @ApiOperation({ summary: 'Obtener el estado de la integración' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado de la integración',
+    schema: {
+      example: {
+        telegramStatus: 'connected',
+      },
+    },
+  })
+  @ApiUnauthorizedResponse({ description: 'Token no válido o expirado' })
+  getIntegrationStatus(@Request() req) {
+    return this.usersService.getIntegrationStatus(req.user.id);
+  }
+
   @Get()
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Listar todos los usuarios (solo ADMIN)' })

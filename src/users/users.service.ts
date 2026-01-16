@@ -83,6 +83,17 @@ export class UsersService {
     return user;
   }
 
+  async getIntegrationStatus(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { telegramId: true },
+    });
+
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+
+    return { telegramStatus: user.telegramId ? 'connected' : 'not_linked' };
+  }
+
   async createUser(data: RegisterDto) {
     const exists = await this.prisma.user.findUnique({
       where: { email: data.email },
